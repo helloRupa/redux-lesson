@@ -7,6 +7,22 @@
   pointer-events: none;
 }
 
+body {
+  text-align: center;
+}
+
+nav div {
+  cursor: pointer;
+}
+
+nav div:hover {
+  background-color: darkseagreen;
+}
+
+input[type="submit"] {
+  cursor: pointer;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
