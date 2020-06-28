@@ -1,14 +1,20 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
-function Details({ cat }) {
+function Details({ selectedCat }) {
   console.log('render Details');
 
   return (
     <div>
       <h2>Cat Details</h2>
-      <p>{ cat }</p>
+      <p>{ selectedCat }</p>
     </div>
   )
 }
 
-export default Details;
+const mapStateToProps = state => ({
+  selectedCat: state.selectedCat
+});
+
+// export default Details;
+export default connect(mapStateToProps)(Details);

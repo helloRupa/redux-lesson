@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { addCat, selectCat } from './actions/catActions';
 
 class Form extends Component {
   constructor(props) {
@@ -16,6 +18,7 @@ class Form extends Component {
   handleSubmit = e => {
     e.preventDefault();
     this.props.addCat(this.state.newCat);
+    this.props.selectCat(this.state.newCat);
     this.setState({newCat: ''});
   }
 
@@ -32,4 +35,11 @@ class Form extends Component {
   }
 }
 
-export default Form;
+// export default Form;
+
+// const mapDispatchToProps = dispatch => ({
+//   addCat: cat => dispatch({ type: 'ADD_CAT', cat: cat }),
+//   selectCat: cat => dispatch({ type: 'SELECT_CAT', cat: cat })
+// });
+
+export default connect(null, { addCat, selectCat })(Form);
