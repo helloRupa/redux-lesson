@@ -7,7 +7,7 @@ import bubble from './assets/bubble.png';
 // connect() is actually a function that returns a function
 // the returned function is an HOC, similar to the HOC in this file
 // The next invokation results in wrapping the component and returning a wrapped component
-// connect(args)(SomeComponent) -> connect(args) returns HOC -> connect(args)(SomeComponent) -> returns wrapped component
+// connect(args) returns HOC -> connect(args)(SomeComponent) -> returns wrapped component
 
 const keyframes = "@keyframes upward { 100% {transform: translateY(-200px)} }";
 
@@ -34,7 +34,11 @@ function BubbleWrapper(ComponentWrap) {
       }
     }
   
-    makeBubbles = () => this.state.bubbles.map(pos => <img src={bubble} style={bubbleStyle(pos)} alt="bubble" key={Math.random()} />)
+    makeBubbles = () => (
+      this.state.bubbles.map(pos => 
+        <img src={bubble} style={bubbleStyle(pos)} alt="bubble" key={Math.random()} />
+      )
+    )
   
     handleMouseEnter = e => {
       this.setState({ bubbles: [...this.state.bubbles, [e.clientX, e.clientY]] });
