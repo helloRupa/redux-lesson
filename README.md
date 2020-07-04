@@ -9,7 +9,6 @@ React-Redux makes it easier for us to ensure that our components only update whe
 
 ## How we'll get there:
 - Update our puzzle pieces (mental jigsaw), so we know which pieces we have to work with
-- Update the Redux cycle with react-redux terminology
 - Convert our cat app to use Redux and React-Redux
 
 ## Updated Puzzle Pieces
@@ -32,7 +31,7 @@ store.subscribe(listener) | connect(mapStateToProps, mapDispatchToProps) | Updat
 - `combineReducers(reducersPOJO)`: function that returns a function combining reducers
 
 **Pieces from the react-redux package**
-- `Provider`: Component that typically wraps App and makes the store available to `connect`ed components:
+- `Provider`: Component that typically wraps App and makes the store available to `connect`ed components. It provides access to the store via a React feature called Contexts.
 ```
 <Provider store={store}>
   <App />
@@ -47,6 +46,12 @@ store.subscribe(listener) | connect(mapStateToProps, mapDispatchToProps) | Updat
 - `mapDispatchToProps`: function that receives dispatch as an argument (is called inside of connect with dispatch). Returns an object where the keys map to prop names and the values are functions that dispatch specific actions that update state.
 
 ```
+function CatComponent({ cats, selectedCat, addCat, selectCat }) {
+  return <div>
+    // some code and stuff for rendering this component
+  </div>
+}
+
 const mapStateToProps = state => ({
   cats: state.cats,
   selectedCat: state.selectedCat
@@ -61,3 +66,23 @@ export default connect(mapStateToProps, mapDispatchToProps)(CatComponent);
 ```
 
 > Note: If using action creators, `mapDispatchToProps` can be replaced with a simple object `connect(mapStateToProps, { addCat })(Component)`
+
+## Import redux and react-redux into the project
+`npm install redux && npm install react-redux`
+
+## React-Redux Checklist:
+Don't forget to import the necessary functions and components from the redux and react-redux libraries, as well as your actions and reducers, in each Component file that depends on them!
+
+1. Create the store with a reducer (or combined reducers using combineReducers). Make sure it's setting the correct initial state.
+2. Wrap App (or some other top-level component) in a Provider. Provider requires the store as a prop.
+```
+<Provider store={store}>
+  <App />
+</Provider>
+```
+3. Declare some actions or action creators that represent state change requests.
+4. Update reducer/s to respond to those actions. Test the reducer/s.
+5. Connect components to the store using `connect`:
+    - If a component ONLY needs to READ from state, mapStateToProps: `connect(mapStateToProps)(ComponentName)`
+    - If a component ONLY needs to UPDATE state, mapDispatchToProps: `connect(null, mapDispatchToProps)(ComponentName)`
+    - If a component READS and UPDATES state: `connect(mapStateToProps, mapDispatchToProps)(ComponentName)`
