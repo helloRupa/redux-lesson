@@ -91,3 +91,5 @@ Don't forget to import the necessary functions and components from the redux and
 
 ## myConnect()
 If you'd like to see how connect() might work under the hood, check out the my_connect folder.
+
+In App.js, you'll need to uncomment the TestMyConnect code to see it on the page.
