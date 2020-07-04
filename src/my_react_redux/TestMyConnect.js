@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import myConnect from './my_connect';
+import { myConnect } from './my_react_redux';
 import { addWoofy, chooseWoofy, uselessAction } from './woofyActions';
 
 /*** This is just to test that myConnect works ***/
+/*** Never code a component like this, such bad ***/
 
 function TestMyConnect({ woofies, chosenWoofy, extraTest, chooseWoofy, addWoofy, uselessAction }) {
-  let [woofyValue, setWoofyValue] = useState('');
+  const [woofyValue, setWoofyValue] = useState('');
 
   const handleChange = e => {
     setWoofyValue(e.target.value);

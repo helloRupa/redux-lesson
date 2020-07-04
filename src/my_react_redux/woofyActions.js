@@ -1,3 +1,4 @@
+// An action to ensure a component doesn't re-render when the state doesn't change
 export const uselessAction = woofy => ({
   type: 'NO_RESPOND',
   woofy

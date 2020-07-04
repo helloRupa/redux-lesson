@@ -89,7 +89,7 @@ Don't forget to import the necessary functions and components from the redux and
     - Update the component to use the props you just added (keys from mapStateToProps and mapDispatchToProps)
     - Export the connected component
 
-## myConnect()
-If you'd like to see how connect() might work under the hood, check out the my_connect folder.
+## my_react_redux
+If you'd like to see how connect() and Provider might work under the hood, check out the my_react_redux folder.
 
-In App.js, you'll need to uncomment the TestMyConnect code to see it on the page.
+In index.js, you'll need to comment out the importing and rendering of App, and comment in the importing and rendering of MyReactRedux.
