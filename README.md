@@ -88,3 +88,6 @@ Don't forget to import the necessary functions and components from the redux and
     - If a component READS and UPDATES state: `connect(mapStateToProps, mapDispatchToProps)(ComponentName)`
     - Update the component to use the props you just added (keys from mapStateToProps and mapDispatchToProps)
     - Export the connected component
+
+## myConnect()
+If you'd like to see how connect() might work under the hood, check out the my_connect folder.
