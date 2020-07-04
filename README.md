@@ -86,3 +86,4 @@ Don't forget to import the necessary functions and components from the redux and
     - If a component ONLY needs to READ from state, mapStateToProps: `connect(mapStateToProps)(ComponentName)`
     - If a component ONLY needs to UPDATE state, mapDispatchToProps: `connect(null, mapDispatchToProps)(ComponentName)`
     - If a component READS and UPDATES state: `connect(mapStateToProps, mapDispatchToProps)(ComponentName)`
+    - Export the connected component
