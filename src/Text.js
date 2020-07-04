@@ -1,5 +1,5 @@
 import React from 'react';
-import BubbleWrapper from './BubbleWrapper';
+import BubbleWrapper from './hoc/BubbleWrapper';
 
 const pStyle = {
   display: 'inline-block',

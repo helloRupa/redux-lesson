@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import bubble from './assets/bubble.png';
+import bubble from '../assets/bubble.png';
 
 // functionally janky way of making bubbles
 
