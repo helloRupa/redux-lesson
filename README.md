@@ -40,7 +40,7 @@ store.subscribe(listener) | connect(mapStateToProps, mapDispatchToProps) | Updat
 - `connect(mapStateToProps, mapDispatchToProps)(Component)`: function that connects slices of state and the dispatching of specific actions to a component. The first call returns an HOC and takes a component as an argument. The second call returns a wrapped component that has the specified slices of state and actions connected to it. Either of the arguments can be null if the component doesn't read from state or update it.
 
 **Custom pieces we build ourselves**
-- Reducer/s: pure functions that contain a switch statement. Sets the initial state and determines what happens based on action type. Always returns state or copy of it.
+- Reducer/s: pure functions that contain a switch statement. Sets the initial state and determines what happens based on action type. Always returns state.
 - Actions or action creators: object containing one mandatory key (type) and one optional key (payload). Serve as state change requests.
 - `mapStateToProps`: function that receives the state as an argument (is called inside of connect with state). Returns an object where the keys map to prop names and the values are the values stored in the store's state.
 - `mapDispatchToProps`: function that receives dispatch as an argument (is called inside of connect with dispatch). Returns an object where the keys map to prop names and the values are functions that dispatch specific actions that update state.
@@ -65,7 +65,7 @@ const mapDispatchToProps = dispatch => ({
 export default connect(mapStateToProps, mapDispatchToProps)(CatComponent);
 ```
 
-> Note: If using action creators, `mapDispatchToProps` can be replaced with a simple object `connect(mapStateToProps, { addCat })(Component)`
+> Note: If using action creators, `mapDispatchToProps` can be replaced with a simple object `connect(mapStateToProps, { addCat, selectCat })(Component)`
 
 ## Import redux and react-redux into the project
 `npm install redux && npm install react-redux`
@@ -86,4 +86,5 @@ Don't forget to import the necessary functions and components from the redux and
     - If a component ONLY needs to READ from state, mapStateToProps: `connect(mapStateToProps)(ComponentName)`
     - If a component ONLY needs to UPDATE state, mapDispatchToProps: `connect(null, mapDispatchToProps)(ComponentName)`
     - If a component READS and UPDATES state: `connect(mapStateToProps, mapDispatchToProps)(ComponentName)`
+    - Update the component to use the props you just added (keys from mapStateToProps and mapDispatchToProps)
     - Export the connected component
