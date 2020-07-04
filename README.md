@@ -1,68 +1,93 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Redux in React Part 2, aka react-redux
+Let's use react-redux instead of just redux.
 
-## Available Scripts
+## By the end of this lesson, you should be able to:
+Add a centralized store to your app and connect components to it using the tools provided by Redux and React-Redux.
 
-In the project directory, you can run:
+## But Why?
+React-Redux makes it easier for us to ensure that our components only update when the slices of state that they're interested in change. This means there is less needless re-rendering of components. Also, React-Redux can help us make our code more modular and reusable! Lastly, we no longer have to pass around the store or put it on the window to make it available to our components.
 
-### `yarn start`
+## How we'll get there:
+- Update our puzzle pieces (mental jigsaw), so we know which pieces we have to work with
+- Convert our cat app to use Redux and React-Redux
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Updated Puzzle Pieces
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Redux Only | React-Redux | Purpose
+-----------|-------------|-----------
+createStore(reducer) | createStore(reducer) | Create the store
+window.store = store | < Provider store={store} /> | Make store available to components
+reducer | reducer | Set the initial state and handle actions (state change requests)
+combineReducers(reducersPOJO) | combineReducers(reducersPOJO) | Allow different reducers to handle slices of state
+actions | actions | Define change requests that update state
+dispatch(action) | dispatch(action) | Dispatch actions to the store to change state
+window.store.getState().property | mapStateToProps | Read from state to make certain slices available to components
+window.store.dispatch(action) | mapDispatchToProps | Dispatch actions from components to update state in store
+N/A | connect(mapStateToProps, mapDispatchToProps) | Wrap component in another component to make slices of state and dispatch available as props
+store.subscribe(listener) | connect(mapStateToProps, mapDispatchToProps) | Update component only when its slice of state changes (Yes, connect is doing all of the jobs!)
 
-### `yarn test`
+**Pieces from the redux package** 
+- `createStore(reducer)`: function that returns the store
+- `combineReducers(reducersPOJO)`: function that returns a function combining reducers
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Pieces from the react-redux package**
+- `Provider`: Component that typically wraps App and makes the store available to `connect`ed components. It provides access to the store via a React feature called Contexts.
+```
+<Provider store={store}>
+  <App />
+</Provider>
+```
+- `connect(mapStateToProps, mapDispatchToProps)(Component)`: function that connects slices of state and the dispatching of specific actions to a component. The first call returns an HOC and takes a component as an argument. The second call returns a wrapped component that has the specified slices of state and actions connected to it. Either of the arguments can be null if the component doesn't read from state or update it.
 
-### `yarn build`
+**Custom pieces we build ourselves**
+- Reducer/s: pure functions that contain a switch statement. Sets the initial state and determines what happens based on action type. Always returns state.
+- Actions or action creators: object containing one mandatory key (type) and one optional key (payload). Serve as state change requests.
+- `mapStateToProps`: function that receives the state as an argument (is called inside of connect with state). Returns an object where the keys map to prop names and the values are the values stored in the store's state.
+- `mapDispatchToProps`: function that receives dispatch as an argument (is called inside of connect with dispatch). Returns an object where the keys map to prop names and the values are functions that dispatch specific actions that update state.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+function CatComponent({ cats, selectedCat, addCat, selectCat }) {
+  return <div>
+    // some code and stuff for rendering this component
+  </div>
+}
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+const mapStateToProps = state => ({
+  cats: state.cats,
+  selectedCat: state.selectedCat
+});
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+const mapDispatchToProps = dispatch => ({
+  addCat: cat => dispatch(addCat(cat)),
+  selectCat: cat => dispatch(selectCat(cat))
+});
 
-### `yarn eject`
+export default connect(mapStateToProps, mapDispatchToProps)(CatComponent);
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+> Note: If using action creators, `mapDispatchToProps` can be replaced with a simple object `connect(mapStateToProps, { addCat, selectCat })(Component)`
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Import redux and react-redux into the project
+`npm install redux && npm install react-redux`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## React-Redux Checklist:
+Don't forget to import the necessary functions and components from the redux and react-redux libraries, as well as your actions and reducers, in each Component file that depends on them!
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. Create the store with a reducer (or combined reducers using combineReducers). Make sure it's setting the correct initial state.
+2. Wrap App (or some other top-level component) in a Provider. Provider requires the store as a prop.
+```
+<Provider store={store}>
+  <App />
+</Provider>
+```
+3. Declare some actions or action creators that represent state change requests.
+4. Update reducer/s to respond to those actions. Test the reducer/s.
+5. Connect components to the store using `connect`:
+    - If a component ONLY needs to READ from state, mapStateToProps: `connect(mapStateToProps)(ComponentName)`
+    - If a component ONLY needs to UPDATE state, mapDispatchToProps: `connect(null, mapDispatchToProps)(ComponentName)`
+    - If a component READS and UPDATES state: `connect(mapStateToProps, mapDispatchToProps)(ComponentName)`
+    - Update the component to use the props you just added (keys from mapStateToProps and mapDispatchToProps)
+    - Export the connected component
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## myConnect()
+If you'd like to see how connect() might work under the hood, check out the my_connect folder.
