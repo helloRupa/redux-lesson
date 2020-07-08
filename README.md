@@ -89,6 +89,9 @@ Don't forget to import the necessary functions and components from the redux and
     - Update the component to use the props you just added (keys from mapStateToProps and mapDispatchToProps)
     - Export the connected component
 
+## Organizing your code
+Check out this article: https://www.freecodecamp.org/news/scaling-your-redux-app-with-ducks-6115955638be/
+
 ## my_react_redux
 If you'd like to see how connect() and Provider might work under the hood, check out the my_react_redux folder.
 
