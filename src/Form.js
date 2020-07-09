@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addCat, selectCat } from './actions/catActions';
+import { addCat, selectCat, fetchImage, fetchImageWithoutMiddleware } from './actions/catActions';
 
 class Form extends Component {
   constructor(props) {
@@ -19,6 +19,7 @@ class Form extends Component {
     e.preventDefault();
     this.props.addCat(this.state.newCat);
     this.props.selectCat(this.state.newCat);
+    this.props.fetchImage();
     this.setState({newCat: ''});
   }
 
@@ -38,8 +39,11 @@ class Form extends Component {
 // export default Form;
 
 // const mapDispatchToProps = dispatch => ({
-//   addCat: cat => dispatch({ type: 'ADD_CAT', cat: cat }),
-//   selectCat: cat => dispatch({ type: 'SELECT_CAT', cat: cat })
+//   addCat: cat => dispatch(addCat(cat)),
+//   selectCat: cat => dispatch(selectCat(cat)),
+//   fetchImage: () => fetchImageWithoutMiddleware(dispatch)
 // });
 
-export default connect(null, { addCat, selectCat })(Form);
+// export default connect(null, mapDispatchToProps)(Form);
+
+export default connect(null, { addCat, selectCat, fetchImage })(Form);

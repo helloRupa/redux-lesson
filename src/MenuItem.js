@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { selectCat } from './actions/catActions';
+import { selectCat, fetchImage, fetchImageWithoutMiddleware } from './actions/catActions';
 
-function MenuItem({ catName, selectCat }) {
+function MenuItem({ catName, selectCat, fetchImage }) {
 
   console.log('render MenuItem');
   
   const handleClick = e => {
     selectCat(e.target.textContent);
+    fetchImage();
   };
 
   return (
@@ -15,10 +16,11 @@ function MenuItem({ catName, selectCat }) {
   )
 }
 
-// export default MenuItem;
-
 // const mapDispatchToProps = dispatch => ({
-//   selectCat: cat => dispatch({ type: 'SELECT_CAT', cat: cat })
+//   selectCat: cat => dispatch(selectCat(cat)),
+//   fetchImage: () => fetchImageWithoutMiddleware(dispatch)
 // });
 
-export default connect(null, { selectCat })(MenuItem);
+// export default connect(null, mapDispatchToProps)(MenuItem);
+
+export default connect(null, { selectCat, fetchImage })(MenuItem);

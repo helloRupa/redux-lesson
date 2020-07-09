@@ -1,6 +1,10 @@
 const initialState = {
   cats: ["Meowser", "Charlie", "Fluffanilla"],
-  selectedCat: "Meowser"
+  selectedCat: "Meowser",
+  image: {
+    url: '',
+    loadState: true
+  }
 };
 
 function catReducer(state=initialState, action) {
@@ -17,6 +21,25 @@ function catReducer(state=initialState, action) {
           selectedCat: action.cat
         }
       }
+
+      return state;
+    case "SET_IMAGE":
+      return {
+        ...state,
+        image: {
+          ...state.image,
+          url: action.url,
+          loadState: false
+        }
+      };
+    case "SET_IS_LOADING":
+      return {
+        ...state,
+        image: {
+          ...state.image,
+          loadState: action.loadState
+        }
+      };
     default:
       return state;
   }
