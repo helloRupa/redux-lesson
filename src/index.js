@@ -26,3 +26,11 @@ ReactDOM.render(
     </Provider>,
   document.getElementById('root')
 );
+
+
+// import MyReactRedux from './MyReactRedux';
+
+// ReactDOM.render(
+//   <MyReactRedux />,
+// document.getElementById('root')
+// );
