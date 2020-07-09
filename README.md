@@ -1,6 +1,8 @@
 # Redux in React Part 2, aka react-redux
 Let's use react-redux instead of just redux.
 
+Solution branch: https://github.com/helloRupa/redux-lesson/tree/redux
+
 ## By the end of this lesson, you should be able to:
 Add a centralized store to your app and connect components to it using the tools provided by Redux and React-Redux.
 
