@@ -89,6 +89,139 @@ Don't forget to import the necessary functions and components from the redux and
     - Update the component to use the props you just added (keys from mapStateToProps and mapDispatchToProps)
     - Export the connected component
 
+## BONUS: Async Redux
+So far, we've been populating our page with static data. But what if we wanted to make an HTTP request and use the response to change the store? We'd have to update our state in an async-friendly way.
+
+So far, we've seen how to make actions available to components using `connect()` with `mapDispatchToProps()` or a POJO in the latter's place. This is not quite so straight forward when making async requests.
+
+Let's say we wanted to display a random cat image pulled from an API when the page loads, any time a cat is clicked, and any time a cat is added via the form. While the fetch request is in flight, we want a loading image (like a spinning cat) to appear. Once the response is received, we want to show the image returned from the API.
+
+This requires us to make some changes in our state, since we now have to track whether an image is loading or not:
+```
+const initialState = {
+  ...
+  image: {
+    url: '',
+    loadState: true
+  }
+};
+```
+
+Next, we can update our `catReducer` to respond to some new actions: One that sets the load state to true and does nothing else, and another that sets the url for the cat image and sets the load state to false:
+```
+case "SET_IMAGE":
+  return {
+    ...state,
+    image: {
+      ...state.image,
+      url: action.url,
+      loadState: false
+    }
+  };
+case "SET_IS_LOADING":
+  return {
+    ...state,
+    image: {
+      ...state.image,
+      loadState: action.loadState
+    }
+  };
+```
+
+We can then test that this is all working using Redux DevTools and static actions to see if the state changes properly.
+
+Now comes the hard part: we need to make those async calls and update the state with the responses we get. 
+
+### Problem:
+Normally, we'd create an action or an action creator and hook that up to the component using `mapDispatchToProps`. However, we can't do that. An action is an object, and an action creator returns an object. This means that dispatch is expecting to receive an object, or a function that returns one.
+
+This means we can't do this inside `mapDispatchToProps`:
+```
+fetchImage: () => dispatch(fetch(url).then(res => res.json()).then(cat => dispatch(setImage(cat.url))))
+```
+We can't do this because `fetch()` returns a Promise, and this would cause an error. Also, `fetch()` is asynchronous so even if it returned an object through some magical sorcery, nothing would be dispatched.
+
+**Solution 1:**
+
+Instead of following the normal pattern in `mapDispatchToProps`, we can change things up a bit. We'll instead declare an action that takes `dispatch` as an argument. That action will return the result of calling `fetch`, in case we need it for _things_, like how we need our Ethereum for _things_. Next, inside of `mapDispatchToProps`, we'll call our special action (that really isn't that actiony anymore) and feed it `dispatch` for supper!
+
+```
+// catActions.js
+export function fetchImageWithoutMiddleware(dispatch) {
+  dispatch(isLoading);
+
+  return fetch('https://api.thecatapi.com/v1/images/search')
+  .then(res => res.json())
+  .then(cat => {
+    dispatch(setImage(cat[0].url));
+  });
+};
+
+// changes for mapping dispatch to props, also requires appropriate imports
+// and calling fetchImage in the appropriate places
+// Details.js, MenuItem.js, Form.js
+const mapDispatchToProps = dispatch => ({
+  fetchImage: () => fetchImageWithoutMiddleware(dispatch)
+});
+```
+This works just fine. It properly sets the loading state and displays the image once it has been fetched. The only downside I can think of is that other devs might not expect this pattern of usage and that you cannot use the object shorthand in place of `mapDispatchToProps`. 
+
+Oh wait, one more possible downside: if your image fetching is later converted to a synchronous action (let's say you've just stored a bunch of cats in a local file that you import while the page loads and you'll get them from there instead), you'll need to update the action and every instance of `mapDispatchToProps` that uses it to follow the normal pattern. Unless, of course, you coded your new synchronous action to take `dispatch` as an argument.
+
+**Solution 2:**
+
+Use Redux thunk middleware! This middleware allows us to return functions from our actions without changing how we map dispatch to props. Technically, our action creators that return functions are now also called thunks (it's a very Googleable word, I promise). The middleware executes the functions returned by our thunks to ensure the appropriate actions are dispatched at the right time. 
+
+If you want to learn more about Redux thunk middleware: https://github.com/reduxjs/redux-thunk
+
+There are several steps to getting this set up and working:
+1. Install it: `npm install --save redux-thunk`
+2. In index.js, add the following:
+```
+import { createStore, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
+
+// Update how you create the store!
+// If you want to use Redux DevTools and middleware, you need to compose
+// a new function using compose() from the redux package
+const store = createStore(catReducer, 
+  compose(applyMiddleware(thunk),
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+));
+```
+
+Now we are ready to get down to business! The business of using middleware that is.
+
+This middleware allows our action creators to return functions, so first, let's create a new action to work with the middleware:
+```
+// catActions.js
+export function fetchImage() {  
+  return (dispatch) => {
+    dispatch(isLoading);
+
+    fetch('https://api.thecatapi.com/v1/images/search')
+    .then(res => res.json())
+    .then(cat => {
+      dispatch(setImage(cat[0].url));
+    });
+  };
+};
+```
+
+Next, we need to update our components to work with this action creator/thunk. This means we're actually getting back to the normal design pattern, so hopefully, this doesn't look too scary or foreign:
+```
+// MenuItem.js, we don't need to mapDispatchToProps like before
+// We can switch to the simplified style
+export default connect(null, { selectCat, fetchImage })(MenuItem);
+
+// The same is true for Details.js
+export default connect(mapStateToProps, { fetchImage })(Details);
+
+// And Form.js
+export default connect(null, { addCat, selectCat, fetchImage })(Form);
+```
+I can't think of any real downsides here, except that you have to do a little extra coding up front to update how the store is created, but really, that's not so bad IMO, unlike pineapple pizza, which is oh so terribly wrong. Don't even with that stuff! Don't even!
+
 ## Organizing your code
 Check out this article: https://www.freecodecamp.org/news/scaling-your-redux-app-with-ducks-6115955638be/
 
