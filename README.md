@@ -1,6 +1,8 @@
 # Redux in React Part 2, aka react-redux
 Let's use react-redux instead of just redux.
 
+Solution branch: https://github.com/helloRupa/redux-lesson/tree/redux
+
 ## By the end of this lesson, you should be able to:
 Add a centralized store to your app and connect components to it using the tools provided by Redux and React-Redux.
 
@@ -12,6 +14,7 @@ React-Redux makes it easier for us to ensure that our components only update whe
 - Convert our cat app to use Redux and React-Redux
 
 ## Updated Puzzle Pieces
+The table below shows us which pieces we'll be using in our apps and what those pieces do. The Redux Only column shows which pieces we would need to use if were only adding vanilla Redux to our React apps. The React-Redux column shows which pieces we'd need if we were using both the redux and react-redux pacakages in our app, which is the convention.
 
 Redux Only | React-Redux | Purpose
 -----------|-------------|-----------
@@ -46,22 +49,35 @@ store.subscribe(listener) | connect(mapStateToProps, mapDispatchToProps) | Updat
 - `mapDispatchToProps`: function that receives dispatch as an argument (is called inside of connect with dispatch). Returns an object where the keys map to prop names and the values are functions that dispatch specific actions that update state.
 
 ```
+// Notice how the props map to the keys in mapStateToProps and mapDispatchToProps
 function CatComponent({ cats, selectedCat, addCat, selectCat }) {
   return <div>
     // some code and stuff for rendering this component
   </div>
 }
 
+// before we had: window.store.getState().cats
+// and window.store.getState().selectedCat
+// both called within the Component itself
+// but now we declare this outside the Component
 const mapStateToProps = state => ({
   cats: state.cats,
   selectedCat: state.selectedCat
 });
 
+// before we had: window.store.dispatch(addCat(cat))
+// and window.store.dispatch(selectCat(cat))
+// both called within the Component itself
+// but now we declare this outside the Component
 const mapDispatchToProps = dispatch => ({
   addCat: cat => dispatch(addCat(cat)),
   selectCat: cat => dispatch(selectCat(cat))
 });
 
+// we no longer store the store on the window because connect() provides access
+// to the relevant slices of state inside the store
+// we don't have to subscribe() to update Components either! connect() takes
+// care of that for us!! OH MAH GAWD!!!
 export default connect(mapStateToProps, mapDispatchToProps)(CatComponent);
 ```
 
@@ -133,13 +149,13 @@ We can then test that this is all working using Redux DevTools and static action
 Now comes the hard part: we need to make those async calls and update the state with the responses we get. 
 
 ### Problem:
-Normally, we'd create an action or an action creator and hook that up to the component using `mapDispatchToProps`. However, we can't do that. An action is an object, and an action creator returns an object. This means that dispatch is expecting to receive an object, or a function that returns one.
+Normally, we'd create an action or an action creator and hook that up to the component using `mapDispatchToProps`. However, we can't do that. An action is an object, and an action creator returns an object. This means that dispatch is expecting to receive an object.
 
-This means we can't do this inside `mapDispatchToProps`:
+So we can't do this inside `mapDispatchToProps`:
 ```
 fetchImage: () => dispatch(fetch(url).then(res => res.json()).then(cat => dispatch(setImage(cat.url))))
 ```
-We can't do this because `fetch()` returns a Promise, and this would cause an error. Also, `fetch()` is asynchronous so even if it returned an object through some magical sorcery, nothing would be dispatched.
+We can't do this because `fetch()` returns a Promise, and this would cause an error. Also, `fetch()` is asynchronous so even if it returned an object through some magical sorcery, nothing would be dispatched because `dispatch()` is synchronous.
 
 **Solution 1:**
 
@@ -148,8 +164,11 @@ Instead of following the normal pattern in `mapDispatchToProps`, we can change t
 ```
 // catActions.js
 export function fetchImageWithoutMiddleware(dispatch) {
+  // set loadState to true before fetching
   dispatch(isLoading);
 
+  // inside fetch, dispatch the action that sets the image URL
+  // that same action will set loadState to false, since loading is done
   return fetch('https://api.thecatapi.com/v1/images/search')
   .then(res => res.json())
   .then(cat => {
@@ -159,7 +178,7 @@ export function fetchImageWithoutMiddleware(dispatch) {
 
 // changes for mapping dispatch to props, also requires appropriate imports
 // and calling fetchImage in the appropriate places
-// Details.js, MenuItem.js, Form.js
+// inside Details.js, MenuItem.js, Form.js
 const mapDispatchToProps = dispatch => ({
   fetchImage: () => fetchImageWithoutMiddleware(dispatch)
 });
@@ -170,7 +189,7 @@ Oh wait, one more possible downside: if your image fetching is later converted t
 
 **Solution 2:**
 
-Use Redux thunk middleware! This middleware allows us to return functions from our actions without changing how we map dispatch to props. Technically, our action creators that return functions are now also called thunks (it's a very Googleable word, I promise). The middleware executes the functions returned by our thunks to ensure the appropriate actions are dispatched at the right time. 
+Use Redux thunk middleware! This middleware allows us to return functions from our actions without changing how we map dispatch to props. Technically, our action creators that return functions are now also called thunks (it's a very Googleable word, I promise). The middleware executes the functions returned by our thunks to ensure the appropriate actions are dispatched at the right time. In other words, it intercepts our dispatch!
 
 If you want to learn more about Redux thunk middleware: https://github.com/reduxjs/redux-thunk
 
@@ -207,6 +226,7 @@ export function fetchImage() {
   };
 };
 ```
+This isn't actually that different from the action in Solution 1. The difference is that our action returns a function, and NOT a Promise.
 
 Next, we need to update our components to work with this action creator/thunk. This means we're actually getting back to the normal design pattern, so hopefully, this doesn't look too scary or foreign:
 ```
