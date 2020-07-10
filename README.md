@@ -191,6 +191,8 @@ Oh wait, one more possible downside: if your image fetching is later converted t
 
 Use Redux thunk middleware! This middleware allows us to return functions from our actions without changing how we map dispatch to props. Technically, our action creators that return functions are now also called thunks (it's a very Googleable word, I promise). The middleware executes the functions returned by our thunks to ensure the appropriate actions are dispatched at the right time. In other words, it intercepts our dispatch!
 
+> Middleware is some code you can put between the framework receiving a request, and the framework generating a response. Redux middleware provides a point between dispatching an action, and the moment it reaches the reducer. People use Redux middleware for logging, crash reporting, talking to an asynchronous API, routing, and more. - taken from the Redux docs
+
 If you want to learn more about Redux thunk middleware: https://github.com/reduxjs/redux-thunk
 
 There are several steps to getting this set up and working:
